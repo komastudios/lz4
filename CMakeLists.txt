@@ -48,7 +48,9 @@ set(LIB_SOURCE_FILES
     xxhash/xxhash.c)
 
 CMAKE_HOST_SYSTEM_INFORMATION(RESULT PLATFORM QUERY OS_PLATFORM)
-if(("${PLATFORM}" STREQUAL "x86_64") OR ("${PLATFORM}" STREQUAL "AMD64"))
+if((("${PLATFORM}" STREQUAL "x86_64") OR ("${PLATFORM}" STREQUAL "AMD64"))
+    AND ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "x86_64|AMD64|i[3-6]86"))
+    set(XXH_X86_DISPATCH ON)
     list(APPEND LIB_SOURCE_FILES xxhash/xxh_x86dispatch.c)
 endif()
 
@@ -67,7 +69,7 @@ function(add_lz4_library TARGET_NAME LIB_TYPE)
     set_property(TARGET ${TARGET_NAME} PROPERTY C_VISIBILITY_PRESET hidden)
     target_compile_definitions(${TARGET_NAME} PRIVATE XXH_NAMESPACE=LZ4_)
 
-    if(("${PLATFORM}" STREQUAL "x86_64") OR ("${PLATFORM}" STREQUAL "AMD64"))
+    if(XXH_X86_DISPATCH)
         target_compile_definitions(${TARGET_NAME} PRIVATE XXHSUM_DISPATCH=1)
     endif()
 

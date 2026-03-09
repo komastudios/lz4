@@ -17,13 +17,17 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Android")
     set(BUILD_TESTING OFF)
     set(BUILD_SHARED OFF)
 
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "-Oz -g -DNDEBUG")
-    set(CMAKE_C_FLAGS_RELEASE "-Oz -DNDEBUG")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE "-O2 -g1 -DNDEBUG")
 
     add_compile_options(-fsigned-char)
+    add_link_options("-Wl,-z,max-page-size=16384")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(BUILD_TESTING OFF)
     set(BUILD_SHARED OFF)
+
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE "-O2 -g1 -DNDEBUG")
 endif()
 
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")

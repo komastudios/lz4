@@ -451,6 +451,8 @@ extern "C" {
 #    elif XXH_IMPORT
 #      define XXH_PUBLIC_API __declspec(dllimport)
 #    endif
+#  elif defined(XXH_EXPORT) && defined(__GNUC__) && (__GNUC__ >= 4)
+#    define XXH_PUBLIC_API __attribute__((visibility("default")))
 #  else
 #    define XXH_PUBLIC_API   /* do nothing */
 #  endif
@@ -527,6 +529,8 @@ extern "C" {
 #    elif XXH_IMPORT
 #      define XXH_PUBLIC_API __declspec(dllimport)
 #    endif
+#  elif defined(XXH_EXPORT) && defined(__GNUC__) && (__GNUC__ >= 4)
+#    define XXH_PUBLIC_API __attribute__((visibility("default")))
 #  else
 #    define XXH_PUBLIC_API   /* do nothing */
 #  endif

@@ -45,22 +45,35 @@ set(LIB_SOURCE_FILES
     lib/lz4hc.c
     lib/lz4frame.c
     lib/lz4file.c
-    lib/xxhash.c)
+    xxhash/xxhash.c)
+
+CMAKE_HOST_SYSTEM_INFORMATION(RESULT PLATFORM QUERY OS_PLATFORM)
+if(("${PLATFORM}" STREQUAL "x86_64") OR ("${PLATFORM}" STREQUAL "AMD64"))
+    list(APPEND LIB_SOURCE_FILES xxhash/xxh_x86dispatch.c)
+endif()
 
 set(LIB_PUBLIC_HEADERS
     lib/lz4.h
     lib/lz4hc.h
     lib/lz4frame.h
-    lib/lz4file.h)
+    lib/lz4file.h
+    xxhash/xxhash.h)
 
 function(add_lz4_library TARGET_NAME LIB_TYPE)
     add_library(${TARGET_NAME} ${LIB_TYPE} ${LIB_SOURCE_FILES})
-    target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+    target_include_directories(${TARGET_NAME} PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib
+        ${CMAKE_CURRENT_SOURCE_DIR}/xxhash)
     set_property(TARGET ${TARGET_NAME} PROPERTY C_VISIBILITY_PRESET hidden)
     target_compile_definitions(${TARGET_NAME} PRIVATE XXH_NAMESPACE=LZ4_)
 
-    if(WIN32)
-        if (LIB_TYPE STREQUAL "SHARED")
+    if(("${PLATFORM}" STREQUAL "x86_64") OR ("${PLATFORM}" STREQUAL "AMD64"))
+        target_compile_definitions(${TARGET_NAME} PRIVATE XXHSUM_DISPATCH=1)
+    endif()
+
+    if(LIB_TYPE STREQUAL "SHARED")
+        target_compile_definitions(${TARGET_NAME} PRIVATE XXH_EXPORT)
+        if(WIN32)
             target_compile_definitions(${TARGET_NAME} PRIVATE LZ4_DLL_EXPORT=1)
         endif()
     endif()
@@ -86,9 +99,17 @@ if(BUILD_TESTING)
     target_link_libraries(test-lz4-static PUBLIC lz4-static)
     add_test(NAME test-lz4-static COMMAND $<TARGET_FILE:test-lz4-static>)
 
+    add_executable(test-xxhash-static test-xxhash.c)
+    target_link_libraries(test-xxhash-static PUBLIC lz4-static)
+    add_test(NAME test-xxhash-static COMMAND $<TARGET_FILE:test-xxhash-static>)
+
     if(BUILD_SHARED)
         add_executable(test-lz4 test-lz4.c)
         target_link_libraries(test-lz4 PUBLIC lz4)
         add_test(NAME test-lz4 COMMAND $<TARGET_FILE:test-lz4>)
+
+        add_executable(test-xxhash test-xxhash.c)
+        target_link_libraries(test-xxhash PUBLIC lz4)
+        add_test(NAME test-xxhash COMMAND $<TARGET_FILE:test-xxhash>)
     endif()
 endif()

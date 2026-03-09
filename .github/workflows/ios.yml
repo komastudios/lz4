@@ -1,0 +1,43 @@
+name: ios
+
+on:
+  push:
+    branches: [ "unity" ]
+  pull_request:
+    branches: [ "unity" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: iOS
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -GXcode \
+        -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/dist \
+        -DCMAKE_SYSTEM_NAME=iOS \
+        "-DCMAKE_OSX_ARCHITECTURES=arm64" \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+        -DCMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=NO \
+        -DCMAKE_IOS_INSTALL_COMBINED=NO
+
+    - name: Build
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      run: cmake --build build --config ${{env.BUILD_TYPE}} --target install
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-arm64
+        path: dist

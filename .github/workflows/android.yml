@@ -20,6 +20,8 @@ jobs:
         platform:
           - { name: Android (arm64-v8a), artifact: "android-arm64", android_abi: "arm64-v8a", android_platform: 16 }
           - { name: Android (armeabi-v7a), artifact: "android-armv7", android_abi: "armeabi-v7a", android_platform: 16, flags: "-DANDROID_ARM_NEON=ON" }
+          - { name: Android (x86), artifact: "android-x86", android_abi: "x86", android_platform: 16 }
+          - { name: Android (x86_64), artifact: "android-x86_64", android_abi: "x86_64", android_platform: 16 }
 
     steps:
     - uses: actions/checkout@v4

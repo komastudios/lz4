@@ -87,7 +87,6 @@ jobs:
               -DCMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=NO
               -DCMAKE_IOS_INSTALL_COMBINED=NO
               -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf
-
           # --- Web (Emscripten) ---
           - name: Emscripten (wasm32)
             artifact: "emscripten-wasm"
@@ -138,7 +137,7 @@ jobs:
 
       - name: Configure CMake (Standard)
         if: "!matrix.android && !matrix.emscripten"
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.flags }}
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/dist ${{ matrix.flags }}
 
       - name: Configure CMake (Android)
         if: matrix.android

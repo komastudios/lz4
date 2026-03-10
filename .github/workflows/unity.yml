@@ -13,6 +13,8 @@ concurrency:
 
 env:
   BUILD_TYPE: Release
+  ZERO_AR_DATE: 1
+  SOURCE_DATE_EPOCH: 0
 
 jobs:
   build:
@@ -118,9 +120,6 @@ jobs:
         shell: bash
         run: |
           echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
-          if [ "${{ matrix.ios }}" = "true" ]; then
-            echo "ZERO_AR_DATE=1" >> $GITHUB_ENV
-          fi
 
       - name: Set up NDK
         if: matrix.android

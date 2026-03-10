@@ -8,6 +8,8 @@ on:
 
 env:
   BUILD_TYPE: Release
+  ZERO_AR_DATE: 1
+  SOURCE_DATE_EPOCH: 0
 
 jobs:
   build:
@@ -17,6 +19,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Set SOURCE_DATE_EPOCH
+      run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
 
     - name: Configure CMake
       run: |
@@ -28,7 +33,8 @@ jobs:
         "-DCMAKE_OSX_ARCHITECTURES=arm64" \
         -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
         -DCMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=NO \
-        -DCMAKE_IOS_INSTALL_COMBINED=NO
+        -DCMAKE_IOS_INSTALL_COMBINED=NO \
+        -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf
 
     - name: Build
       run: cmake --build build --config ${{env.BUILD_TYPE}}

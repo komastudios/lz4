@@ -8,6 +8,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  SOURCE_DATE_EPOCH: 0
 
 jobs:
   build:
@@ -25,6 +26,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Set SOURCE_DATE_EPOCH
+      run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
 
     - uses: nttld/setup-ndk@v1
       id: setup_ndk

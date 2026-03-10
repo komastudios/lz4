@@ -33,7 +33,6 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
 
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG")
     set(CMAKE_C_FLAGS_RELEASE "-O2 -g1 -DNDEBUG")
-    add_compile_options("-fno-reorder-functions")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     set(BUILD_TESTING OFF)
     set(BUILD_SHARED OFF)

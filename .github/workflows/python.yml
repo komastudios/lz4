@@ -2,9 +2,9 @@ name: python
 
 on:
   push:
-    paths:
-      - 'lz4-native/**'
-      - '.github/workflows/build_lz4_native.yml'
+    branches: [ "unity" ]
+  pull_request:
+    branches: [ "unity" ]
   workflow_dispatch:
 
 jobs:

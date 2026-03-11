@@ -1,0 +1,108 @@
+name: Build LZ4 Native Python Package
+
+on:
+  push:
+    paths:
+      - 'lz4-native/**'
+      - '.github/workflows/build_lz4_native.yml'
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # --- Build Native Library ---
+
+      - name: Build liblz4 (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cd lib
+          make lib
+          cd ..
+
+      - name: Build liblz4 (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir build\cmake\build
+          cd build\cmake\build
+          cmake -G "Visual Studio 17 2022" -A x64 -DBUILD_SHARED_LIBS=ON ..\..
+          cmake --build . --config Release
+          cd ..\..\..
+
+      # --- Prepare Python Package ---
+
+      - name: Copy library to package (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p lz4-native/lz4_native/lib
+          cp lib/liblz4.so lz4-native/lz4_native/lib/
+
+      - name: Copy library to package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p lz4-native/lz4_native/lib
+          cp lib/liblz4.dylib lz4-native/lz4_native/lib/
+
+      - name: Copy library to package (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir lz4-native\lz4_native\lib
+          copy build\cmake\build\Release\lz4.dll lz4-native\lz4_native\lib\
+
+      # --- Build & Test ---
+
+      - name: Build Wheel (Bundled)
+        run: |
+          pip install build
+          python -m build --wheel ./lz4-native
+
+      - name: Install and Test
+        shell: bash
+        run: |
+          # Install the built wheel
+          pip install lz4-native/dist/*.whl
+          
+          # Run verification
+          python lz4-native/tests/test_basic.py
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: lz4-native/dist/*.whl
+
+  build_sdist:
+    name: Build Source Distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          
+      - name: Build Sdist
+        run: |
+          pip install build
+          # Ensure no libs are present (External mode)
+          rm -rf lz4-native/lz4_native/lib
+          python -m build --sdist ./lz4-native
+          
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: lz4-native/dist/*.tar.gz

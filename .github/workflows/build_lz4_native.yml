@@ -35,11 +35,11 @@ jobs:
       - name: Build liblz4 (Windows)
         if: runner.os == 'Windows'
         run: |
-          mkdir build\cmake\build
-          cd build\cmake\build
-          cmake -G "Visual Studio 17 2022" -A x64 -DBUILD_SHARED_LIBS=ON ..\..
+          mkdir _build
+          cd _build
+          cmake -G "Visual Studio 17 2022" -A x64 -DBUILD_SHARED=ON ..
           cmake --build . --config Release
-          cd ..\..\..
+          cd ..
 
       # --- Prepare Python Package ---
 
@@ -59,7 +59,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           mkdir lz4-native\lz4_native\lib
-          copy build\cmake\build\Release\lz4.dll lz4-native\lz4_native\lib\
+          copy _build\Release\lz4.dll lz4-native\lz4_native\lib\
 
       # --- Build & Test ---
 

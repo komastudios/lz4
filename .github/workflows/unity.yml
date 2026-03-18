@@ -32,6 +32,7 @@ jobs:
           - name: "Linux (GCC)"
             artifact: "linux-x64"
             os: ubuntu-22.04
+            flags: "-GNinja"
             test: true
           - name: "macOS (Clang)"
             artifact: "macos-universal"
@@ -51,6 +52,7 @@ jobs:
             shell: 'msys2 {0}'
             msystem: mingw64
             msys-env: mingw-w64-x86_64
+            flags: "-GNinja"
             test: true
 
           # --- Android ---
@@ -143,6 +145,7 @@ jobs:
         if: matrix.android
         run: |
           cmake -S . -B build \
+            -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
             -DANDROID_PLATFORM=16 \
             -DANDROID_ABI=${{ matrix.abi }} \
@@ -152,10 +155,10 @@ jobs:
 
       - name: Configure CMake (Emscripten)
         if: matrix.emscripten
-        run: emcmake cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: emcmake cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build build --config Release --parallel
 
       - name: Test
         if: matrix.test
@@ -168,7 +171,7 @@ jobs:
 
       - name: Install (iOS)
         if: matrix.ios
-        run: cmake --build build --config Release --target install
+        run: cmake --build build --config Release --parallel --target install
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v6

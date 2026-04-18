@@ -45,6 +45,11 @@ if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
     add_compile_options("/Brepro")
     add_link_options("/Brepro")
     add_compile_options("/pathmap:${CMAKE_CURRENT_SOURCE_DIR}=.")
+    # add_link_options only reaches link.exe (executables + shared libs).
+    # Static archives go through lib.exe, which needs /Brepro via the
+    # separate CMAKE_STATIC_LINKER_FLAGS variable — otherwise the .lib
+    # picks up a per-run timestamp in its archive header.
+    string(APPEND CMAKE_STATIC_LINKER_FLAGS " /Brepro")
     if(USE_MSVC_STATIC_RUNTIME)
         message(STATUS "Using MSVC static runtime")
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")

@@ -1,0 +1,179 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
+/*
+ * koma_prefix.h — symbol-prefix wrapper for the Koma fork of LZ4.
+ *
+ * Force-included via -include koma_prefix.h on every translation unit when
+ * building for Emscripten (see CMakeLists.txt). Renames every public
+ * LZ4_* / LZ4F_* / LZ4HC_* symbol to KOMA_* so the resulting wasm static
+ * archive does not collide with Unity's own bundled LZ4 symbols inside
+ * WebGLSupport_CoreModule_Dynamic.a.
+ *
+ * Only Emscripten builds get prefixed — other platforms continue to ship
+ * upstream LZ4 ABI so existing native-plugin bindings keep working.
+ *
+ * Note for consumers: when this header is in effect, P/Invoke / DllImport
+ * EntryPoint strings on the C# side must address the prefixed names
+ * ("KOMA_LZ4_compress_default", not "LZ4_compress_default"). The fork
+ * intentionally keeps the prefix bound to the binary, not to call sites,
+ * so callers that ship platform-specific bindings can opt in per build.
+ *
+ * Maintenance: regenerate by running, against any built liblz4-static
+ * archive, the following:
+ *
+ *     nm liblz4-static.a | awk '/ [TWBD] / {print $NF}' | sort -u | \
+ *         awk '{printf "#define %s KOMA_%s\n", $1, $1}'
+ *
+ * If a future LZ4 upgrade adds new public symbols, the wasm-ld duplicate-
+ * symbol error against Unity's bundled LZ4 will surface them at build time
+ * (when consumed against an un-prefixed Unity LZ4 surface) and the entry
+ * here can be appended.
+ */
+
+#ifndef KOMA_LZ4_PREFIX_H
+#define KOMA_LZ4_PREFIX_H
+
+#define LZ4_attach_dictionary KOMA_LZ4_attach_dictionary
+#define LZ4_attach_HC_dictionary KOMA_LZ4_attach_HC_dictionary
+#define LZ4_compress KOMA_LZ4_compress
+#define LZ4_compress_continue KOMA_LZ4_compress_continue
+#define LZ4_compress_default KOMA_LZ4_compress_default
+#define LZ4_compress_destSize KOMA_LZ4_compress_destSize
+#define LZ4_compress_destSize_extState KOMA_LZ4_compress_destSize_extState
+#define LZ4_compress_fast KOMA_LZ4_compress_fast
+#define LZ4_compress_fast_continue KOMA_LZ4_compress_fast_continue
+#define LZ4_compress_fast_extState KOMA_LZ4_compress_fast_extState
+#define LZ4_compress_fast_extState_fastReset KOMA_LZ4_compress_fast_extState_fastReset
+#define LZ4_compress_forceExtDict KOMA_LZ4_compress_forceExtDict
+#define LZ4_compress_HC KOMA_LZ4_compress_HC
+#define LZ4_compress_HC_continue KOMA_LZ4_compress_HC_continue
+#define LZ4_compress_HC_continue_destSize KOMA_LZ4_compress_HC_continue_destSize
+#define LZ4_compress_HC_destSize KOMA_LZ4_compress_HC_destSize
+#define LZ4_compress_HC_extStateHC KOMA_LZ4_compress_HC_extStateHC
+#define LZ4_compress_HC_extStateHC_fastReset KOMA_LZ4_compress_HC_extStateHC_fastReset
+#define LZ4_compress_limitedOutput KOMA_LZ4_compress_limitedOutput
+#define LZ4_compress_limitedOutput_continue KOMA_LZ4_compress_limitedOutput_continue
+#define LZ4_compress_limitedOutput_withState KOMA_LZ4_compress_limitedOutput_withState
+#define LZ4_compress_withState KOMA_LZ4_compress_withState
+#define LZ4_compressBound KOMA_LZ4_compressBound
+#define LZ4_compressHC KOMA_LZ4_compressHC
+#define LZ4_compressHC_continue KOMA_LZ4_compressHC_continue
+#define LZ4_compressHC_limitedOutput KOMA_LZ4_compressHC_limitedOutput
+#define LZ4_compressHC_limitedOutput_continue KOMA_LZ4_compressHC_limitedOutput_continue
+#define LZ4_compressHC_limitedOutput_withStateHC KOMA_LZ4_compressHC_limitedOutput_withStateHC
+#define LZ4_compressHC_withStateHC KOMA_LZ4_compressHC_withStateHC
+#define LZ4_compressHC2 KOMA_LZ4_compressHC2
+#define LZ4_compressHC2_continue KOMA_LZ4_compressHC2_continue
+#define LZ4_compressHC2_limitedOutput KOMA_LZ4_compressHC2_limitedOutput
+#define LZ4_compressHC2_limitedOutput_continue KOMA_LZ4_compressHC2_limitedOutput_continue
+#define LZ4_compressHC2_limitedOutput_withStateHC KOMA_LZ4_compressHC2_limitedOutput_withStateHC
+#define LZ4_compressHC2_withStateHC KOMA_LZ4_compressHC2_withStateHC
+#define LZ4_create KOMA_LZ4_create
+#define LZ4_createHC KOMA_LZ4_createHC
+#define LZ4_createStream KOMA_LZ4_createStream
+#define LZ4_createStreamDecode KOMA_LZ4_createStreamDecode
+#define LZ4_createStreamHC KOMA_LZ4_createStreamHC
+#define LZ4_decoderRingBufferSize KOMA_LZ4_decoderRingBufferSize
+#define LZ4_decompress_fast KOMA_LZ4_decompress_fast
+#define LZ4_decompress_fast_continue KOMA_LZ4_decompress_fast_continue
+#define LZ4_decompress_fast_usingDict KOMA_LZ4_decompress_fast_usingDict
+#define LZ4_decompress_fast_withPrefix64k KOMA_LZ4_decompress_fast_withPrefix64k
+#define LZ4_decompress_safe KOMA_LZ4_decompress_safe
+#define LZ4_decompress_safe_continue KOMA_LZ4_decompress_safe_continue
+#define LZ4_decompress_safe_forceExtDict KOMA_LZ4_decompress_safe_forceExtDict
+#define LZ4_decompress_safe_partial KOMA_LZ4_decompress_safe_partial
+#define LZ4_decompress_safe_partial_forceExtDict KOMA_LZ4_decompress_safe_partial_forceExtDict
+#define LZ4_decompress_safe_partial_usingDict KOMA_LZ4_decompress_safe_partial_usingDict
+#define LZ4_decompress_safe_usingDict KOMA_LZ4_decompress_safe_usingDict
+#define LZ4_decompress_safe_withPrefix64k KOMA_LZ4_decompress_safe_withPrefix64k
+#define LZ4_favorDecompressionSpeed KOMA_LZ4_favorDecompressionSpeed
+#define LZ4_freeHC KOMA_LZ4_freeHC
+#define LZ4_freeStream KOMA_LZ4_freeStream
+#define LZ4_freeStreamDecode KOMA_LZ4_freeStreamDecode
+#define LZ4_freeStreamHC KOMA_LZ4_freeStreamHC
+#define LZ4_initStream KOMA_LZ4_initStream
+#define LZ4_initStreamHC KOMA_LZ4_initStreamHC
+#define LZ4_loadDict KOMA_LZ4_loadDict
+#define LZ4_loadDict_internal KOMA_LZ4_loadDict_internal
+#define LZ4_loadDictHC KOMA_LZ4_loadDictHC
+#define LZ4_loadDictSlow KOMA_LZ4_loadDictSlow
+#define LZ4_resetStream KOMA_LZ4_resetStream
+#define LZ4_resetStream_fast KOMA_LZ4_resetStream_fast
+#define LZ4_resetStreamHC KOMA_LZ4_resetStreamHC
+#define LZ4_resetStreamHC_fast KOMA_LZ4_resetStreamHC_fast
+#define LZ4_resetStreamState KOMA_LZ4_resetStreamState
+#define LZ4_resetStreamStateHC KOMA_LZ4_resetStreamStateHC
+#define LZ4_saveDict KOMA_LZ4_saveDict
+#define LZ4_saveDictHC KOMA_LZ4_saveDictHC
+#define LZ4_setCompressionLevel KOMA_LZ4_setCompressionLevel
+#define LZ4_setStreamDecode KOMA_LZ4_setStreamDecode
+#define LZ4_sizeofState KOMA_LZ4_sizeofState
+#define LZ4_sizeofStateHC KOMA_LZ4_sizeofStateHC
+#define LZ4_sizeofStreamState KOMA_LZ4_sizeofStreamState
+#define LZ4_sizeofStreamStateHC KOMA_LZ4_sizeofStreamStateHC
+#define LZ4_slideInputBuffer KOMA_LZ4_slideInputBuffer
+#define LZ4_slideInputBufferHC KOMA_LZ4_slideInputBufferHC
+#define LZ4_uncompress KOMA_LZ4_uncompress
+#define LZ4_uncompress_unknownOutputSize KOMA_LZ4_uncompress_unknownOutputSize
+#define LZ4_versionNumber KOMA_LZ4_versionNumber
+#define LZ4_versionString KOMA_LZ4_versionString
+#define LZ4_XXH_versionNumber KOMA_LZ4_XXH_versionNumber
+#define LZ4_XXH32 KOMA_LZ4_XXH32
+#define LZ4_XXH32_canonicalFromHash KOMA_LZ4_XXH32_canonicalFromHash
+#define LZ4_XXH32_copyState KOMA_LZ4_XXH32_copyState
+#define LZ4_XXH32_createState KOMA_LZ4_XXH32_createState
+#define LZ4_XXH32_digest KOMA_LZ4_XXH32_digest
+#define LZ4_XXH32_freeState KOMA_LZ4_XXH32_freeState
+#define LZ4_XXH32_hashFromCanonical KOMA_LZ4_XXH32_hashFromCanonical
+#define LZ4_XXH32_reset KOMA_LZ4_XXH32_reset
+#define LZ4_XXH32_update KOMA_LZ4_XXH32_update
+#define LZ4_XXH64 KOMA_LZ4_XXH64
+#define LZ4_XXH64_canonicalFromHash KOMA_LZ4_XXH64_canonicalFromHash
+#define LZ4_XXH64_copyState KOMA_LZ4_XXH64_copyState
+#define LZ4_XXH64_createState KOMA_LZ4_XXH64_createState
+#define LZ4_XXH64_digest KOMA_LZ4_XXH64_digest
+#define LZ4_XXH64_freeState KOMA_LZ4_XXH64_freeState
+#define LZ4_XXH64_hashFromCanonical KOMA_LZ4_XXH64_hashFromCanonical
+#define LZ4_XXH64_reset KOMA_LZ4_XXH64_reset
+#define LZ4_XXH64_update KOMA_LZ4_XXH64_update
+#define LZ4F_compressBegin KOMA_LZ4F_compressBegin
+#define LZ4F_compressBegin_internal KOMA_LZ4F_compressBegin_internal
+#define LZ4F_compressBegin_usingCDict KOMA_LZ4F_compressBegin_usingCDict
+#define LZ4F_compressBegin_usingDict KOMA_LZ4F_compressBegin_usingDict
+#define LZ4F_compressBegin_usingDictOnce KOMA_LZ4F_compressBegin_usingDictOnce
+#define LZ4F_compressBound KOMA_LZ4F_compressBound
+#define LZ4F_compressEnd KOMA_LZ4F_compressEnd
+#define LZ4F_compressFrame KOMA_LZ4F_compressFrame
+#define LZ4F_compressFrame_usingCDict KOMA_LZ4F_compressFrame_usingCDict
+#define LZ4F_compressFrameBound KOMA_LZ4F_compressFrameBound
+#define LZ4F_compressionLevel_max KOMA_LZ4F_compressionLevel_max
+#define LZ4F_compressUpdate KOMA_LZ4F_compressUpdate
+#define LZ4F_createCDict KOMA_LZ4F_createCDict
+#define LZ4F_createCDict_advanced KOMA_LZ4F_createCDict_advanced
+#define LZ4F_createCompressionContext KOMA_LZ4F_createCompressionContext
+#define LZ4F_createCompressionContext_advanced KOMA_LZ4F_createCompressionContext_advanced
+#define LZ4F_createDecompressionContext KOMA_LZ4F_createDecompressionContext
+#define LZ4F_createDecompressionContext_advanced KOMA_LZ4F_createDecompressionContext_advanced
+#define LZ4F_decompress KOMA_LZ4F_decompress
+#define LZ4F_decompress_usingDict KOMA_LZ4F_decompress_usingDict
+#define LZ4F_flush KOMA_LZ4F_flush
+#define LZ4F_freeCDict KOMA_LZ4F_freeCDict
+#define LZ4F_freeCompressionContext KOMA_LZ4F_freeCompressionContext
+#define LZ4F_freeDecompressionContext KOMA_LZ4F_freeDecompressionContext
+#define LZ4F_getBlockSize KOMA_LZ4F_getBlockSize
+#define LZ4F_getErrorCode KOMA_LZ4F_getErrorCode
+#define LZ4F_getErrorName KOMA_LZ4F_getErrorName
+#define LZ4F_getFrameInfo KOMA_LZ4F_getFrameInfo
+#define LZ4F_getVersion KOMA_LZ4F_getVersion
+#define LZ4F_headerSize KOMA_LZ4F_headerSize
+#define LZ4F_isError KOMA_LZ4F_isError
+#define LZ4F_read KOMA_LZ4F_read
+#define LZ4F_readClose KOMA_LZ4F_readClose
+#define LZ4F_readOpen KOMA_LZ4F_readOpen
+#define LZ4F_resetDecompressionContext KOMA_LZ4F_resetDecompressionContext
+#define LZ4F_uncompressedUpdate KOMA_LZ4F_uncompressedUpdate
+#define LZ4F_write KOMA_LZ4F_write
+#define LZ4F_writeClose KOMA_LZ4F_writeClose
+#define LZ4F_writeOpen KOMA_LZ4F_writeOpen
+#define LZ4HC_searchExtDict KOMA_LZ4HC_searchExtDict
+
+#endif /* KOMA_LZ4_PREFIX_H */

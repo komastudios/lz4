@@ -86,6 +86,18 @@ function(add_lz4_library TARGET_NAME LIB_TYPE)
         endif()
     endif()
 
+    # Emscripten-only KOMA_ symbol prefix — see lib/koma_prefix.h. Forces
+    # every public LZ4_*/LZ4F_*/LZ4HC_*/(LZ4-namespaced) XXH_* name to its
+    # KOMA_-prefixed form so the resulting wasm static archive does not
+    # collide with Unity's own quarantine-leaking LZ4 symbols inside
+    # WebGLSupport_CoreModule_Dynamic.a. PUBLIC so consumers that include
+    # the public headers see the same renaming, keeping declarations and
+    # definitions in sync at every call site.
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+        target_compile_options(${TARGET_NAME} PUBLIC
+            "-include" "${CMAKE_CURRENT_SOURCE_DIR}/lib/koma_prefix.h")
+    endif()
+
     install(TARGETS ${TARGET_NAME}
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib

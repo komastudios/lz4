@@ -96,6 +96,23 @@ jobs:
               -DCMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=NO
               -DCMAKE_IOS_INSTALL_COMBINED=NO
               -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf
+
+          # --- tvOS ---
+          # `ios: true` only selects the Xcode-style install step below; it is
+          # not iOS-specific beyond that.
+          - name: tvOS
+            artifact: "tvos-arm64"
+            os: macos-15
+            ios: true
+            xcode: '16.4'
+            flags: >-
+              -GXcode
+              -DCMAKE_SYSTEM_NAME=tvOS
+              "-DCMAKE_OSX_ARCHITECTURES=arm64"
+              -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+              -DCMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=NO
+              -DCMAKE_IOS_INSTALL_COMBINED=NO
+              -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf
           # --- Web (Emscripten) ---
           - name: Emscripten (wasm32)
             artifact: "emscripten-wasm"

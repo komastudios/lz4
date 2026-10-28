@@ -23,7 +23,8 @@ env:
 jobs:
   build:
     name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
+    # Only the trusted unity branch may use the persistent organization runners.
+    runs-on: ${{ fromJSON(matrix.xcode && github.ref == 'refs/heads/unity' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && '{"group":"rg-macos","labels":["self-hosted","macOS","ARM64","hetmac","xcode-16.4"]}' || format('"{0}"', matrix.os)) }}
     defaults:
       run:
         shell: ${{ matrix.shell || 'bash' }}
@@ -148,10 +149,20 @@ jobs:
             ${{ matrix.msys-env }}-ninja
 
       - name: Setup Xcode
-        if: matrix.xcode
+        if: matrix.xcode && runner.environment != 'self-hosted'
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: ${{ matrix.xcode }}
+
+      - name: Select hetmac Xcode
+        if: matrix.xcode && runner.environment == 'self-hosted'
+        shell: bash
+        run: |
+          developer_dir=/Applications/Xcode-16.4.0.app/Contents/Developer
+          test -d "$developer_dir"
+          version=$(DEVELOPER_DIR="$developer_dir" xcodebuild -version)
+          test "$(printf '%s\n' "$version" | head -n 1)" = "Xcode 16.4"
+          printf 'DEVELOPER_DIR=%s\n' "$developer_dir" >> "$GITHUB_ENV"
 
       - uses: actions/checkout@v6
         with:
@@ -196,7 +207,7 @@ jobs:
         run: emcmake cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --config Release --parallel
+        run: cmake --build build --config Release --parallel ${{ runner.environment == 'self-hosted' && '2' || '' }}
 
       - name: Test
         if: matrix.test
@@ -209,7 +220,7 @@ jobs:
 
       - name: Install (iOS)
         if: matrix.ios
-        run: cmake --build build --config Release --parallel --target install
+        run: cmake --build build --config Release --parallel ${{ runner.environment == 'self-hosted' && '2' || '' }} --target install
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
